@@ -6,8 +6,24 @@ import "strings"
 import "os"
 
 func main() {
+	getMusicFilesForPath(".")
+}
 
-	entries, err := ioutil.ReadDir(".")
+func isMusicFile(f os.FileInfo) bool {
+	if f.IsDir() {
+		return false
+	}
+
+	if f.Size() < 10 {
+		return false
+	}
+
+	return strings.HasSuffix(f.Name(), ".mp3")
+}
+
+func getMusicFilesForPath(path string) []os.FileInfo {
+
+	entries, err := ioutil.ReadDir(path)
 
 	if err != nil {
 		log.Fatal(err)
@@ -25,16 +41,6 @@ func main() {
 	}
 
 	log.Println("No more files found!")
-}
 
-func isMusicFile(f os.FileInfo) bool {
-	if f.IsDir() {
-		return false
-	}
-
-	if f.Size() < 10 {
-		return false
-	}
-
-	return strings.HasSuffix(f.Name(), ".mp3")
+	return validFiles
 }
