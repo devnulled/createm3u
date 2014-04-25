@@ -10,21 +10,14 @@ import "fmt"
 func main() {
 	const musicPath = "."
 	const playlistName = "playlist.m3u"
+	const shouldCleanPlaylists = true
+
+	if shouldCleanPlaylists {
+		cleanPlaylists(musicPath)
+	}
 
 	musicFiles := getMusicFilesForPath(musicPath)
 	writePlaylist(musicPath, playlistName, musicFiles)
-}
-
-func isMusicFile(f os.FileInfo) bool {
-	if f.IsDir() {
-		return false
-	}
-
-	if f.Size() < 10 {
-		return false
-	}
-
-	return strings.HasSuffix(f.Name(), ".mp3")
 }
 
 func getMusicFilesForPath(path string) []string {
@@ -76,4 +69,46 @@ func writePlaylist(path string, filename string, musicFiles []string) {
 	w.Flush()
 
 	log.Println("Playlist created!")
+}
+
+func cleanPlaylists(path string) {
+	entries, err := ioutil.ReadDir(path)
+
+	if err != nil {
+		log.Fatal("Unable to open path to find playlists to clean", err)
+	}
+
+	for _, entry := range entries {
+		if isPlaylistFile(entry) {
+			log.Println(entry.Name() + " is a playlist file!")
+			os.Remove(path + entry.Name())
+		} else {
+			log.Println(entry.Name() + " is not a playlist file.")
+		}
+	}
+}
+
+func isMusicFile(f os.FileInfo) bool {
+	if f.IsDir() {
+		return false
+	}
+
+	if f.Size() < 10 {
+		return false
+	}
+
+	return strings.HasSuffix(f.Name(), ".mp3")
+}
+
+func isPlaylistFile(f os.FileInfo) bool {
+
+	if f.IsDir() {
+		return false
+	}
+
+	if f.Size() < 10 {
+		return false
+	}
+
+	return strings.HasSuffix(f.Name(), ".m3u")
 }
