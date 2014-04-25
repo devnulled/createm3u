@@ -4,9 +4,15 @@ import "io/ioutil"
 import "log"
 import "strings"
 import "os"
+import "bufio"
+import "fmt"
 
 func main() {
-	getMusicFilesForPath(".")
+	const musicPath = "."
+	const playlistName = "playlist.m3u"
+
+	musicFiles := getMusicFilesForPath(musicPath)
+	writePlaylist(musicPath, playlistName, musicFiles)
 }
 
 func isMusicFile(f os.FileInfo) bool {
@@ -21,20 +27,20 @@ func isMusicFile(f os.FileInfo) bool {
 	return strings.HasSuffix(f.Name(), ".mp3")
 }
 
-func getMusicFilesForPath(path string) []os.FileInfo {
+func getMusicFilesForPath(path string) []string {
 
 	entries, err := ioutil.ReadDir(path)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Unable to open path to find music files", err)
 	}
 
-	validFiles := make([]os.FileInfo, len(entries))
+	validFiles := make([]string, len(entries))
 
 	for _, entry := range entries {
 		if isMusicFile(entry) {
 			log.Println(entry.Name() + " is a music file!")
-			validFiles = append(validFiles, entry)
+			validFiles = append(validFiles, entry.Name())
 		} else {
 			log.Println(entry.Name() + " is not a music file.")
 		}
@@ -43,4 +49,31 @@ func getMusicFilesForPath(path string) []os.FileInfo {
 	log.Println("No more files found!")
 
 	return validFiles
+}
+
+func writePlaylist(path string, filename string, musicFiles []string) {
+	if len(musicFiles) <= 0 {
+		return
+	}
+
+	fullPath := []string{path, "/", filename}
+	file, err := os.Create(strings.Join(fullPath, ""))
+
+	if err != nil {
+		log.Fatal("Unable to write playlist", err)
+	}
+
+	defer file.Close()
+
+	w := bufio.NewWriter(file)
+
+	for _, musicFile := range musicFiles {
+		if musicFile != "" {
+			fmt.Fprintln(w, musicFile)
+		}
+	}
+
+	w.Flush()
+
+	log.Println("Playlist created!")
 }
