@@ -16,7 +16,7 @@ func main() {
 	validFiles := make([]os.FileInfo, len(entries))
 
 	for _, entry := range entries {
-		if isMusicFile(entry.Name()) {
+		if isMusicFile(entry) {
 			log.Println(entry.Name() + " is a music file!")
 			validFiles = append(validFiles, entry)
 		} else {
@@ -27,6 +27,14 @@ func main() {
 	log.Println("No more files found!")
 }
 
-func isMusicFile(s string) bool {
-	return strings.HasSuffix(s, ".mp3")
+func isMusicFile(f os.FileInfo) bool {
+	if f.IsDir() {
+		return false
+	}
+
+	if f.Size() < 10 {
+		return false
+	}
+
+	return strings.HasSuffix(f.Name(), ".mp3")
 }
