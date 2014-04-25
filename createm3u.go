@@ -2,6 +2,7 @@ package main
 
 import "io/ioutil"
 import "log"
+import "strings"
 
 func main() {
 
@@ -12,8 +13,16 @@ func main() {
 	}
 
 	for _, entry := range entries {
-		log.Println(entry.Name())
+		if isMusicFile(entry.Name()) {
+			log.Println(entry.Name() + " is a music file!")
+		} else {
+			log.Println(entry.Name() + " is not a music file.")
+		}
 	}
 
 	log.Println("No more files found!")
+}
+
+func isMusicFile(s string) bool {
+	return strings.HasSuffix(s, ".mp3")
 }
