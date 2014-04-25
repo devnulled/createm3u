@@ -1,8 +1,19 @@
 package main
 
-import "fmt"
+import "io/ioutil"
+import "log"
 
 func main() {
-	fmt.Printf("Hello, world!\n")
-	fmt.Printf("Go is working correctly!\n")
+
+	entries, err := ioutil.ReadDir(".")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, entry := range entries {
+		log.Println(entry.Name())
+	}
+
+	log.Println("No more files found!")
 }
